@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#111015">
+<title>little archive.</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  color-scheme:dark;
+  --bg:#111015;--card:#201c25;--border:#352e39;
+  --text:#f4edf4;--muted:#a69aa9;--accent:#c69ab9;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;color:inherit}
+header{padding:22px 19px 14px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:23px;font-weight:750;letter-spacing:-1px}
+.logo span{color:var(--accent)}
+.small{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:5px}
+main{max-width:650px;margin:auto;padding:8px 16px calc(105px + env(safe-area-inset-bottom))}
+.welcome{background:linear-gradient(130deg,#302431,#201c28);border:1px solid #443343;border-radius:19px;padding:20px;margin-bottom:24px}
+.eyebrow{color:#c7a9c2;font-size:10px;letter-spacing:2px}
+h1{font-size:27px;line-height:1.2;margin:12px 0 8px}
+.muted{color:var(--muted);font-size:12px;line-height:1.5}
+.heading{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 12px}
+.heading strong{font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:15px;text-align:left;min-height:105px;display:flex;flex-direction:column;justify-content:space-between}
+.tile .emoji{font-size:24px}
+.tile b{font-size:13px}
+.tile small{color:var(--muted);font-size:11px}
+.panel,.record{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px}
+.record{display:flex;justify-content:space-between;gap:10px}
+.record b{font-size:13px}
+.record p{font-size:12px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;align-items:center}
+.actions button{background:none;border:0;color:var(--accent);font-size:17px}
+.tag{font-size:10px;color:#d7b2ce;background:#382b3a;padding:4px 8px;border-radius:20px}
+.event{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:13px;margin-bottom:9px}
+.datebox{background:#382b39;border-radius:10px;padding:8px;text-align:center;min-width:44px;font-weight:bold}
+.datebox small{display:block;font-size:9px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;display:flex;justify-content:space-around;align-items:center;background:#17141bf2;border-top:1px solid var(--border);padding:11px 5px calc(11px + env(safe-area-inset-bottom))}
+nav button{border:0;background:none;color:#887d8b;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:4px}
+nav button.active{color:#dbb8d1}
+nav .symbol{font-size:21px}
+nav .add{background:var(--accent);color:#211823;width:43px;height:43px;border-radius:15px;font-size:27px;display:grid;place-items:center;margin-top:-20px}
+.field{margin:13px 0}
+.field label{font-size:11px;color:#c0b3c1;display:block;margin-bottom:7px}
+.field input,.field textarea,.field select{width:100%;background:#151219;color:var(--text);border:1px solid #403744;border-radius:10px;padding:12px;outline:none;font-size:14px}
+.field textarea{min-height:90px;resize:vertical}
+.primary{width:100%;background:var(--accent);color:#211823;border:0;border-radius:11px;padding:14px;font-weight:700;margin-top:8px}
+.secondary{background:#302733;border:1px solid #493b4a;border-radius:10px;padding:10px;color:#e4c9df}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.day{height:43px;border:0;border-radius:10px;background:none;font-size:12px}
+.day.selected{background:#a87e9e}
+.day.today{outline:1px solid var(--accent)}
+.day.head{height:25px;color:#887e8b;font-size:10px}
+.dot{display:block;width:4px;height:4px;background:#d6a9cc;border-radius:50%;margin:2px auto 0}
+.overlay{position:fixed;inset:0;z-index:20;background:#000b;display:flex;align-items:flex-end;justify-content:center;padding:10px}
+.sheet{background:#211d26;border:1px solid #514052;border-radius:22px;width:min(100%,500px);max-height:88%;overflow:auto;padding:20px}
+.sheettop{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.sheettop button{background:#39313d;border:0;border-radius:50%;width:34px;height:34px}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.choice{background:#302833;border:1px solid #493b4a;border-radius:13px;padding:14px;text-align:left}
+.choice span{display:block;font-size:23px;margin-bottom:8px}
+.choice b{font-size:12px}
+.empty{text-align:center;padding:28px 12px;color:var(--muted);font-size:13px}
+.month{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.month button{background:#302733;border:0;border-radius:9px;padding:8px 13px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">little archive<span>.</span></div>
+    <div class="small">YOUR PERSONAL SPACE</div>
+  </div>
+  <div style="color:var(--accent);font-size:24px">✦</div>
+</header>
+<main id="app"></main>
+<nav>
+  <button data-tab="home" class="active"><span class="symbol">⌂</span>Главная</button>
+  <button data-tab="search"><span class="symbol">⌕</span>Поиск</button>
+  <button id="add"><span class="add">＋</span></button>
+  <button data-tab="calendar"><span class="symbol">▦</span>Календарь</button>
+  <button data-tab="saved"><span class="symbol">♡</span>Коллекция</button>
+</nav>
+<div id="modal"></div>
+<script>
+(()=>{
+const tg=window.Telegram?.WebApp;
+if(tg){
+  tg.ready();
+  tg.expand();
+  try{tg.disableVerticalSwipes()}catch(e){}
+}
+const app=document.getElementById('app');
+const modal=document.getElementById('modal');
+const cats=[
+ ['reels','🎬','Reels'],['notes','📝','Заметки'],
+ ['movies','🍿','Фильмы'],['gifts','🎁','Подарки'],
+ ['dates','💕','Свидания'],['events','✦','События']
+];
+let records=[];
+try{records=JSON.parse(localStorage.getItem('little_archive')||'[]')}
+catch(e){records=[]}
+let tab='home',query='',selected=new Date(),filter='all';
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const category=id=>cats.find(c=>c[0]===id)||cats[5];
+const dateText=s=>s?new Date(s+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'short'}):'Без даты';
+function save(){
+ try{localStorage.setItem('little_archive',JSON.stringify(records))}
+ catch(e){alert('Недостаточно места для сохранения.')}
+}
+function item(r){
+ const c=category(r.type);
+ return `<div class="record">
+ <div style="flex:1;min-width:0">
+ <b>${c[1]} ${esc(r.title)}</b>
+ <p>${esc(r.description)}</p>
+ <span class="tag">${c[2]}</span>
+ ${r.date?` <span class="tag">${dateText(r.date)}</span>`:''}
+ ${r.status?` <span class="tag">${esc(r.status)}</span>`:''}
+ ${r.url?`<p><a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:#d9b5cf">Открыть ссылку ↗</a></p>`:''}
+ </div>
+ <div class="actions">
+ <button data-fav="${r.id}">${r.fav?'♥':'♡'}</button>
+ <button data-edit="${r.id}">✎</button>
+ <button data-delete="${r.id}">×</button>
+ </div></div>`;
+}
+function heading(title,extra=''){return `<div class="heading"><strong>${title}</strong>${extra}</div>`}
+function home(){
+ const upcoming=records.filter(r=>r.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+ return `<section class="welcome">
+ <div class="eyebrow">YOUR LITTLE UNIVERSE ✦</div>
+ <h1>Твоя жизнь.<br>Твои идеи.</h1>
+ <div class="muted">Всё, что хочется сохранить, теперь в одном месте.</div>
+ <div style="display:flex;justify-content:space-between;margin-top:22px">
+ <span class="muted">В твоём архиве</span><b style="font-size:25px">${records.length}</b>
+ </div></section>
+ ${heading('Твоя коллекция')}
+ <div class="grid">${cats.slice(0,5).map(c=>`<button class="tile" data-category="${c[0]}"><span class="emoji">${c[1]}</span><span><b>${c[2]}</b><br><small>${records.filter(r=>r.type===c[0]).length} записей</small></span></button>`).join('')}
+ <button class="tile" data-tab="saved"><span class="emoji">♡</span><span><b>Избранное</b><br><small>${records.filter(r=>r.fav).length} записей</small></span></button></div>
+ ${heading('Ближайшие планы',`<button class="secondary" data-tab="calendar">Все →</button>`)}
+ ${upcoming.map(r=>`<div class="event"><div class="datebox">${r.date.slice(8)}<small>${dateText(r.date).split(' ')[1]}</small></div><div><b>${category(r.type)[1]} ${esc(r.title)}</b><p class="muted">${esc(r.description)}</p></div></div>`).join('')||'<div class="panel muted">Пока нет планов. Добавь что-нибудь приятное ♡</div>'}
+ ${heading('Недавно добавлено')}
+ ${records.slice(-3).reverse().map(item).join('')||'<div class="empty">Твоя история начинается здесь ✨</div>'}`;
+}
+function calendar(){
+ const y=selected.getFullYear(),m=selected.getMonth();
+ const first=new Date(y,m,1),offset=(first.getDay()+6)%7;
+ const count=new Date(y,m+1,0).getDate();
+ let cells='';
+ for(let i=0;i<offset;i++)cells+='<div></div>';
+ for(let d=1;d<=count;d++){
+  const date=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const has=records.some(r=>r.date===date);
+  cells+=`<button class="day ${date===today()?'today':''} ${date===dateSelected?'selected':''}" data-date="${date}">${d}${has?'<i class="dot"></i>':''}</button>`;
+ }
+ return `${heading('Твой календарь')}
+ <div class="panel"><div class="month"><button id="prev">‹</button><b>${selected.toLocaleDateString('ru-RU',{month:'long',year:'numeric'})}</b><button id="next">›</button></div>
+ <div class="days">${['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'].map(d=>`<div class="day head">${d}</div>`).join('')}${cells}</div>
+ <p class="muted">Точки отмечают дни с записями</p></div>
+ ${heading('Выбранная дата: '+dateText(dateSelected),'<button class="secondary" id="date-add">＋ Добавить</button>')}
+ ${records.filter(r=>r.date===dateSelected).map(item).join('')||'<div class="empty">На этот день пока ничего нет ♡</div>'}`;
+}
+let dateSelected=today();
+function list(items,title){return `${heading(title,`<span class="muted">${items.length} записей</span>`)}${items.map(item).join('')||'<div class="empty">Пока здесь пусто ✨</div>'}`}
+function render(){
+ document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+ if(tab==='home')app.innerHTML=home();
+ if(tab==='calendar')app.innerHTML=calendar();
+ if(tab==='saved'){
+ let xs=records.slice().reverse();
+ if(filter==='fav')xs=xs.filter(r=>r.fav);
+ if(filter==='someday')xs=xs.filter(r=>!r.date);
+ app.innerHTML=`${heading('Твоя коллекция ♡')}<div style="display:flex;gap:7px;margin-bottom:14px"><button class="secondary" data-filter="all">Всё</button><button class="secondary" data-filter="fav">Избранное</button><button class="secondary" data-filter="someday">Someday</button></div>${list(xs,'Сохранённое')}`;
+ }
+ if(tab==='search'){
+ const xs=records.slice().reverse().filter(r=>(r.title+' '+r.description+' '+r.url).toLowerCase().includes(query.toLowerCase()));
+ app.innerHTML=`${heading('Поиск')}<div class="field"><input id="q" placeholder="Название, мысль, ссылка..." value="${esc(query)}"></div><div id="results">${list(xs,'Результаты')}</div>`;
+ }
+}
+function chooser(){
+ modal.innerHTML=`<div class="overlay"><div class="sheet"><div class="sheettop"><div><b>Что добавим? ✨</b><div class="muted">Выбери категорию</div></div><button id="close">×</button></div><div class="choices">${cats.map(c=>`<button class="choice" data-new="${c[0]}"><span>${c[1]}</span><b>${c[2]}</b></button>`).join('')}</div></div></div>`;
+}
+function form(type,id){
+ const old=records.find(r=>r.id===id)||{};
+ modal.innerHTML=`<div class="overlay"><div class="sheet">
+ <div class="sheettop"><div><b>${id?'Изменить запись':'Новая запись'}</b><div class="muted">${category(type)[2]}</div></div><button id="close">×</button></div>
+ <form id="entry">
+ <div class="field"><label>Название *</label><input name="title" required maxlength="120" value="${esc(old.title)}" placeholder="Как назовём?"></div>
+ <div class="field"><label>Описание</label><textarea name="description">${esc(old.description)}</textarea></div>
+ <div class="field"><label>Ссылка</label><input name="url" type="url" value="${esc(old.url)}" placeholder="https://"></div>
+ <div class="field"><label>Дата</label><input name="date" type="date" value="${old.date|| (type==='events'?dateSelected:'')}"></div>
+ <div class="field"><label>Статус</label><select name="status"><option value="">Без статуса</option>${['Посмотреть','Смотрю','Посмотрела','Купить','Куплено','Идея','Запланировано','Выполнено','Отменено','Перенесено'].map(s=>`<option ${old.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+ <label class="muted"><input name="fav" type="checkbox" ${old.fav?'checked':''}> В избранное</label>
+ <button class="primary">Сохранить</button></form></div></div>`;
+ modal.querySelector('#entry').onsubmit=e=>{
+ e.preventDefault();const f=new FormData(e.target);
+ const url=String(f.get('url')||'').trim();
+ if(url&&!/^https?:\/\//i.test(url)){alert('Используй ссылку http:// или https://');return}
+ const r={id:old.id||crypto.randomUUID(),type,title:String(f.get('title')).trim(),description:String(f.get('description')||''),url,date:f.get('date'),status:f.get('status'),fav:f.get('fav')==='on'};
+ if(id)records=records.map(x=>x.id===id?r:x);else records.push(r);
+ save();modal.innerHTML='';render();
+ };
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.tab){tab=b.dataset.tab;render()}
+ if(b.id==='add')chooser();
+ if(b.id==='close')modal.innerHTML='';
+ if(b.dataset.new)form(b.dataset.new);
+ if(b.dataset.category){tab='saved';filter='all';render();app.innerHTML=list(records.filter(r=>r.type===b.dataset.category).reverse(),category(b.dataset.category)[2])}
+ if(b.dataset.fav){records=records.map(r=>r.id===b.dataset.fav?{...r,fav:!r.fav}:r);save();render()}
+ if(b.dataset.delete&&confirm('Удалить запись?')){records=records.filter(r=>r.id!==b.dataset.delete);save();render()}
+ if(b.dataset.edit){const r=records.find(x=>x.id===b.dataset.edit);form(r.type,r.id)}
+ if(b.dataset.filter){filter=b.dataset.filter;render()}
+ if(b.id==='prev'||b.id==='next'){selected.setMonth(selected.getMonth()+(b.id==='next'?1:-1));render()}
+ if(b.dataset.date){dateSelected=b.dataset.date;render()}
+ if(b.id==='date-add')form('events');
+});
+document.addEventListener('input',e=>{
+ if(e.target.id==='q'){query=e.target.value;const xs=records.slice().reverse().filter(r=>(r.title+' '+r.description+' '+r.url).toLowerCase().includes(query.toLowerCase()));document.getElementById('results').innerHTML=list(xs,'Результаты')}
+});
+render();
+})();
+</script>
+</body>
+</html>
